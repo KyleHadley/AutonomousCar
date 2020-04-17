@@ -1,4 +1,5 @@
 ﻿#region Includes
+using System;
 using UnityEngine;
 #endregion
 
@@ -14,7 +15,7 @@ public class CameraMovement : MonoBehaviour
     private int CamZ = -15;
     // The initial Camera target, to be set in Unity Editor.
     [SerializeField]
-    private GameObject Target;
+    public GameObject CurrentTarget { get; private set; }
     // The speed of camera movement, to be set in Unity Editor.
     [SerializeField]
     private float CamSpeed = 5f;
@@ -24,6 +25,8 @@ public class CameraMovement : MonoBehaviour
     // Whether the camera can be controlled by user input, to be set in Unity Editor.
     [SerializeField]
     private bool AllowUserInput;
+
+    private Vector3 _startPosition;
 
     /// <summary>
     /// The bounds the camera may move in.
@@ -45,20 +48,44 @@ public class CameraMovement : MonoBehaviour
     public void SetTarget(Car target)
     {
         //Set position instantly if previous target was null
-        if (Target == null && !AllowUserInput && target != null)
+        if (CurrentTarget == null && !AllowUserInput && target != null)
             SetCamPosInstant(target.transform.position);
 
-        this.Target = target.gameObject;
+        this.CurrentTarget = target.gameObject;
+    }
+
+    private void Awake()
+    {
+        // Set start position on startup
+        _startPosition = this.transform.position;
     }
 
     // Unity method for updating the simulation
-	void FixedUpdate ()
+    void FixedUpdate ()
     {
         //Check movement direction
         if (AllowUserInput)
+        {
             CheckUserInput();
-        else if (Target != null)
-            targetCamPos = Target.transform.position;
+        }
+        else if (CurrentTarget != null)
+        {
+            targetCamPos = CurrentTarget.transform.position;
+        }
+        else if (CurrentTarget == null)
+        {
+            // Find new camera target
+            var firstCar = EvolutionManager.Singleton.activeFirstCar;
+            if (firstCar != null)
+            {
+                SetTarget(firstCar);
+            }
+            else
+            {
+                ResetToStartPosition();
+            }
+
+        }
 
         targetCamPos.z = CamZ; //Always set z to cam distance
         this.transform.position = Vector3.Lerp(this.transform.position, targetCamPos, CamSpeed * Time.deltaTime); //Move camera with interpolation
@@ -96,6 +123,11 @@ public class CameraMovement : MonoBehaviour
                 targetCamPos.y = this.transform.position.y;
             }
         }
+    }
+
+    private void ResetToStartPosition()
+    {
+        SetCamPosInstant(_startPosition);
     }
 
     /// <summary>

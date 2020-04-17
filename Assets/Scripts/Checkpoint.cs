@@ -13,11 +13,11 @@ public class Checkpoint : MonoBehaviour {
 
     private void Start()
     {
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         //Manager = Manager.GetComponent<EvolutionManager>();
         
 
-        sr.color = new Color(1f, 1f, 1f, 0.5f);// Make sprite 50% transparent
+        spriteRenderer.color = new Color(1f, 1f, 1f, 0.5f);// Make sprite 50% transparent
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -27,23 +27,32 @@ public class Checkpoint : MonoBehaviour {
         {
             //Car CarComponent = other.transform.parent.GetComponent<Car>(); // Get component of the car
             Car CarComponent = other.GetComponent<Car>();
-            string carID = CarComponent.UniqueID; // Get the unique ID of the car
+            string carID = CarComponent.UniqueId; // Get the unique ID of the car
             
             // Double check and ensure the car count is increased and increased only once
             if(!AllGuids.Contains(carID))
             {
                 AllGuids.Add(carID);
-                CarComponent.CheckpointCaptured(); // Increase the car's fitness
+                
+
+                if (FinalCheckpoint)
+                {
+                    CarComponent.CheckpointCaptured(true);
+                    if (carID != null)
+                    {
+                        Debug.Log(carID + " reached final checkpoint.");
+                    }
+                    //Manager.LapComplete();
+                    EvolutionManager.Singleton.LapComplete(CarComponent);
+                    // Add function to call from manager and change some text
+                }
+                else
+                {
+                    CarComponent.CheckpointCaptured(); // Increase the car's fitness
+                }
             }
 
-            if(FinalCheckpoint)
-            {
-                CarComponent.CheckpointCaptured();
-                Debug.Log(carID);
-                //Manager.LapComplete();
-                EvolutionManager.Singleton.LapComplete();
-                // Add function to call from manager and change some text
-            }
+            
         }
     }
 

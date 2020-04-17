@@ -8,14 +8,15 @@ public class Car : MonoBehaviour
     // Variables
     [SerializeField] bool UserInput = false;// Defines where the user can control the car or the neural network should
     [SerializeField] LayerMask SensorMask;// Choose which layer the walls will be so the car knows what to collide with
-    [SerializeField] float FitnessUnchangedDie = 5;// Number of seconds to wait to check if the fitness hasn't increased
-
+    [SerializeField] float FitnessUnchangedDie = 3;// Number of seconds to wait to check if the fitness hasn't increased
     [SerializeField] Sprite bestCarSprite;
+
+    public bool HasReachedFinalCheckpoint { get; private set; }
 
     // Public neural network that refers to the next neural network to be set in the next instantiated car
     public static NeuralNetwork NextNetwork = new NeuralNetwork(new uint[] { 6, 4, 3, 2 }, null);
 
-    public string UniqueID { get; private set; }// The unique ID of the car
+    public string UniqueId { get; private set; }// The unique ID of the car
 
     public int Fitness { get; private set; }// Current fitness/score of the car - Number of checkpoints it has hit.
 
@@ -25,11 +26,15 @@ public class Car : MonoBehaviour
 
     public NeuralNetwork DrivingNN { get; private set; }// The neural network of current car
 
+    public bool IsActive { get; private set; } // Determine if the car is currently actively driving or not
+
     // Constants
     private const float turnSpeed = 100f;
     private const float accelerationVelocity = 5f;
     private const float frictionVelocity = 2f;
     private const float maxVelocity = 15f;
+
+    private bool _frozen = false;
 
     Rigidbody rb;// Rigidbody control of the game object
     LineRenderer lr;// Renders lines of the car for visual effect
@@ -37,7 +42,9 @@ public class Car : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        UniqueID = System.Guid.NewGuid().ToString();// Assign a new unique ID for the current car
+        UniqueId = System.Guid.NewGuid().ToString();// Assign a new unique ID for the current car
+        HasReachedFinalCheckpoint = false;
+        _frozen = false;
 
         // Set the current nextwork to become the next network
         DrivingNN = NextNetwork;
@@ -64,16 +71,19 @@ public class Car : MonoBehaviour
             float Vertical;
             float Horizontal;
 
-            FeedSensorInputs(out Vertical, out Horizontal);
+            if (!_frozen)
+            {
+                FeedSensorInputs(out Vertical, out Horizontal);
 
-            Drive(Vertical, Horizontal); //Moves the car!!
+                Drive(Vertical, Horizontal); //Moves the car!!
+            }
         }
     }
 
     // Checks every x seconds if the car has made no improvements and forces it to evolve
     IEnumerator IsNotImproving()
     {
-        while (true)
+        while (true && !_frozen)
         {
             int OldFitness = Fitness;// Save initial fitness
             yield return new WaitForSeconds(FitnessUnchangedDie);// Wait some time
@@ -244,10 +254,30 @@ public class Car : MonoBehaviour
     }
 
     // Called when the car hits any checkpoint
-    public void CheckpointCaptured()
+    public void CheckpointCaptured(bool finalCheckpoint = false)
     {
         //Debug.Log("Checkpoint hit! fitness: " + Fitness);
         Fitness++; // Increase the fitness score
+        if (finalCheckpoint)
+        {
+            HasReachedFinalCheckpoint = true;
+            FreezeCar();
+        }
+    }
+
+    private void FreezeCar()
+    {
+        var rigidbody = gameObject.GetComponent<Rigidbody2D>();
+        // Todo still ensure freeze works correctly
+        rigidbody.isKinematic = true;
+        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        _frozen = true;
+    }
+
+    private void UnFreeze()
+    {
+        //Todo
     }
 
     // Called when a car hits a wall
@@ -256,6 +286,11 @@ public class Car : MonoBehaviour
         EvolutionManager.Singleton.CarDead(this, Fitness);// Notify the evolution manager that car is dead
 
         gameObject.SetActive(false);// Deactivate the car
+    }
+
+    public void SetActive(bool active)
+    {
+        IsActive = active;
     }
 
     public void ChangeColour()
