@@ -11,6 +11,7 @@ public class Car : MonoBehaviour
     [SerializeField] float FitnessUnchangedDie = 3;// Number of seconds to wait to check if the fitness hasn't increased
     [SerializeField] Sprite bestCarSprite;
 
+
     public bool HasReachedFinalCheckpoint { get; private set; }
 
     // Public neural network that refers to the next neural network to be set in the next instantiated car
@@ -261,6 +262,8 @@ public class Car : MonoBehaviour
         if (finalCheckpoint)
         {
             HasReachedFinalCheckpoint = true;
+            Fitness += 2;
+            SetActive(false);
             FreezeCar();
         }
     }
@@ -272,7 +275,24 @@ public class Car : MonoBehaviour
         rigidbody.isKinematic = true;
         rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
 
+        if (!IsActive)
+        {
+            MakeTransparent();
+        }
+
         _frozen = true;
+    }
+
+    private void MakeTransparent()
+    {
+        var semiTransparent = new Color(1f, 1f, 1f, 0.5f);
+        gameObject.GetComponent<SpriteRenderer>().color = semiTransparent;
+    }
+
+    private void MakeOpaque()
+    {
+        var opaque = new Color(1f, 1f, 1f, 1f);
+        gameObject.GetComponent<SpriteRenderer>().color = opaque;
     }
 
     private void UnFreeze()
@@ -295,11 +315,6 @@ public class Car : MonoBehaviour
 
     public void ChangeColour()
     {
-        //if(bestCar)
-       // {
-            Debug.Log("hellooo");
-            gameObject.GetComponent<SpriteRenderer>().sprite = bestCarSprite;
-      //  }
-
+        gameObject.GetComponent<SpriteRenderer>().sprite = bestCarSprite;
     }
 }

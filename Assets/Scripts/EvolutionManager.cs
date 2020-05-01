@@ -63,7 +63,8 @@ public class EvolutionManager : MonoBehaviour
         // If no more cars are active, create a new generation
         if (listOfCars.Count(x => x.IsActive) <= 0)
         {
-            RemoveAllInactiveCars();
+            //RemoveAllInactiveCars();
+            RemoveAllCars();
             StartGeneration();
         }
     }
@@ -130,6 +131,11 @@ public class EvolutionManager : MonoBehaviour
             //currentEvolutionCars.Add(Instantiate(CarPrefab, transform.position, Quaternion.identity, transform).GetComponent<Car>());
             listOfCars.Add(Instantiate(CarPrefab, transform.position, Quaternion.identity, transform).GetComponent<Car>());
             listOfCars[i].SetActive(true);
+
+            if (i == 0)
+            {
+                listOfCars[i].ChangeColour();
+            }
         }
         /*tk
         aNeuralnet = BestNeuralNetwork;
@@ -137,17 +143,23 @@ public class EvolutionManager : MonoBehaviour
         handleData.SaveNetwork(aNeuralnet);*/
     }
 
-    private void RemoveAllInactiveCars()
+    //private void RemoveAllInactiveCars()
+    private void RemoveAllCars()
     {
-        foreach (var car in listOfCars.Where(x => !x.IsActive))
+        foreach (var car in listOfCars)//.Where(x => !x.IsActive))
         {
+            
+            // Delete any cars still existing
             if (car.gameObject != null && gameObject.activeInHierarchy)
             {
                 //var co = GameObject.Find()
                 Destroy(car.gameObject);
             }
-            listOfCars.Remove(car);
+            //listOfCars.Remove(car);
         }
+
+        // Clear list of cars for next generation
+        listOfCars.Clear();
     }
 
     // Called by cars when they die (crash into a wall)
