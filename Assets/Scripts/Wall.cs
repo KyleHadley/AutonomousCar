@@ -10,7 +10,7 @@ public class Wall : MonoBehaviour {
     {
         if(collision.gameObject.layer == LayerMask.NameToLayer(LayerHitName))// Make sure it collides with the car (by setting its layer)
         {
-            collision.transform.GetComponent<Car>().WallHit();// Tell the car it has impacted with the wall
+            collision.transform.GetComponent<Car>().Kill();// Tell the car it has impacted with the wall
         }
     }
 }

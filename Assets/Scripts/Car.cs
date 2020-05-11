@@ -29,6 +29,8 @@ public class Car : MonoBehaviour
 
     public bool IsActive { get; private set; } // Determine if the car is currently actively driving or not
 
+    public bool IsBestNetwork { get; private set; }
+
     // Constants
     private const float turnSpeed = 100f;
     private const float accelerationVelocity = 5f;
@@ -81,7 +83,10 @@ public class Car : MonoBehaviour
         }
     }
 
-    // Checks every x seconds if the car has made no improvements and forces it to evolve
+    /// <summary>
+    /// Checks every x seconds if the car has made no improvements and forces it to evolve
+    /// </summary>
+    /// <returns></returns>
     IEnumerator IsNotImproving()
     {
         while (true && !_frozen)
@@ -90,12 +95,16 @@ public class Car : MonoBehaviour
             yield return new WaitForSeconds(FitnessUnchangedDie);// Wait some time
             if (OldFitness == Fitness) // Check if fitness hasn't changed
             {
-                WallHit(); // Kill current car
+                Kill(); // Kill current car
             }
         }
     }
 
-    // Function that handles car movement
+    /// <summary>
+    /// Handles the car movement
+    /// </summary>
+    /// <param name="v"></param>
+    /// <param name="h"></param>
     public void Drive(float v, float h)
     {
         //rb.velocity = transform.right * v * 4;
@@ -108,7 +117,7 @@ public class Car : MonoBehaviour
         //this.transform.position += direction * Velocity * Time.deltaTime;
         this.transform.position += direction * Velocity * Time.deltaTime;
 
-        // If not accellerating, apply some friction
+        // If not accelerating, apply some friction
         //if(v <= 0)
         //{
             ApplyFriction();
@@ -163,7 +172,11 @@ public class Car : MonoBehaviour
         }
     }
 
-    // Cast all the rays and propate all this data
+    /// <summary>
+    /// Cast all the rays and propagate all this data
+    /// </summary>
+    /// <param name="Vertical"></param>
+    /// <param name="Horizontal"></param>
     void FeedSensorInputs(out float Vertical, out float Horizontal)
     {
         double[] NeuralInput = new double[NextNetwork.Topology[0]];
@@ -254,7 +267,10 @@ public class Car : MonoBehaviour
         Rotation *= Quaternion.AngleAxis((float)-Horizontal * turnSpeed * Time.deltaTime, new Vector3(0, 0, 1));
     }
 
-    // Called when the car hits any checkpoint
+    /// <summary>
+    /// Called when the car hits any checkpoint
+    /// </summary>
+    /// <param name="finalCheckpoint"></param>
     public void CheckpointCaptured(bool finalCheckpoint = false)
     {
         //Debug.Log("Checkpoint hit! fitness: " + Fitness);
@@ -268,6 +284,9 @@ public class Car : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Freeze the position of the car
+    /// </summary>
     private void FreezeCar()
     {
         var rigidbody = gameObject.GetComponent<Rigidbody2D>();
@@ -300,8 +319,10 @@ public class Car : MonoBehaviour
         //Todo
     }
 
-    // Called when a car hits a wall
-    public void WallHit()
+    /// <summary>
+    /// Remove the car from the list and delete the game object
+    /// </summary>
+    public void Kill()
     {
         EvolutionManager.Singleton.CarDead(this, Fitness);// Notify the evolution manager that car is dead
 
@@ -313,8 +334,9 @@ public class Car : MonoBehaviour
         IsActive = active;
     }
 
-    public void ChangeColour()
+    public void UpdateBestCarSprite()
     {
         gameObject.GetComponent<SpriteRenderer>().sprite = bestCarSprite;
+        IsBestNetwork = true;
     }
 }

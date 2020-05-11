@@ -17,9 +17,28 @@ Platform assembly: C:\Users\Kyle\Documents\GitHub\AutonomousCar\Training_Data\Ma
 Loading C:\Users\Kyle\Documents\GitHub\AutonomousCar\Training_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
 Platform assembly: C:\Users\Kyle\Documents\GitHub\AutonomousCar\Training_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll (this message is harmless)
 Loading C:\Users\Kyle\Documents\GitHub\AutonomousCar\Training_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll into Unity Child Domain
-- Completed reload, in  0.466 seconds
+- Completed reload, in  0.277 seconds
 Platform assembly: C:\Users\Kyle\Documents\GitHub\AutonomousCar\Training_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: C:\Users\Kyle\Documents\GitHub\AutonomousCar\Training_Data\Managed\System.dll (this message is harmless)
 desktop: 1920x1080 60Hz; virtual: 3840x1080 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.833984 ms
+The referenced script on this Behaviour (Game Object 'Main Camera') is missing!
+ 
+(Filename:  Line: 1755)
+
+The referenced script on this Behaviour (Game Object 'Manager') is missing!
+ 
+(Filename:  Line: 1755)
+
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 4.000109 ms
+
+Unloading 7 unused Assets to reduce memory usage. Loaded Objects now: 697.
+Total: 0.314877 ms (FindLiveObjects: 0.045510 ms CreateObjectMapping: 0.017066 ms MarkObjects: 0.224993 ms  DeleteObjects: 0.026737 ms)
+
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 24f8 -> priority: 1 
+  Thread -> id: 3e60 -> priority: 1 

@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.UI;
+// ReSharper disable All
 
 public class EvolutionManager : MonoBehaviour
 {
@@ -63,10 +65,19 @@ public class EvolutionManager : MonoBehaviour
         // If no more cars are active, create a new generation
         if (listOfCars.Count(x => x.IsActive) <= 0)
         {
-            //RemoveAllInactiveCars();
-            RemoveAllCars();
-            StartGeneration();
+            BeginNextGeneration();
         }
+        else if (listOfCars.Count == 1 && listOfCars.FirstOrDefault(x => x.IsBestNetwork))
+        {
+            Debug.Log("Last car remaining is the previous best generation, skipping to begin next new generation.");
+            Wait(1, BeginNextGeneration);
+        }
+    }
+
+    private void BeginNextGeneration()
+    {
+        RemoveAllCars();
+        StartGeneration();
     }
 
     private void FixedUpdate()
@@ -107,6 +118,22 @@ public class EvolutionManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Waits x seconds before executing the action
+    /// </summary>
+    /// <param name="seconds"> Number of seconds to wait </param>
+    /// <param name="action"> The method we want to execute </param>
+    public void Wait(float seconds, Action action)
+    {
+        StartCoroutine(_wait(seconds, action));
+    }
+
+    IEnumerator _wait(float time, Action callback)
+    {
+        yield return new WaitForSeconds(time);
+        callback();
+    }
+
     void StartGeneration()
     {
         GenerationCount++;// Increment generation count
@@ -134,7 +161,7 @@ public class EvolutionManager : MonoBehaviour
 
             if (i == 0)
             {
-                listOfCars[i].ChangeColour();
+                listOfCars[i].UpdateBestCarSprite();
             }
         }
         /*tk
